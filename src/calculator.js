@@ -6,6 +6,9 @@
  * - : subtraction
  * * : multiplication
  * / : division
+ * % : modulo
+ * ^ : exponentiation (power)
+ * sqrt : square root
  */
 
 function add(left, right) {
@@ -28,29 +31,69 @@ function divide(left, right) {
   return left / right;
 }
 
+function modulo(left, right) {
+  if (right === 0) {
+    throw new Error('Modulo by zero is not allowed.');
+  }
+
+  return left % right;
+}
+
+function power(base, exponent) {
+  return base ** exponent;
+}
+
+function squareRoot(value) {
+  if (value < 0) {
+    throw new Error('Square root of a negative number is not allowed.');
+  }
+
+  return Math.sqrt(value);
+}
+
 const operations = {
   '+': {
     name: 'addition',
+    arity: 2,
     execute: add,
   },
   '-': {
     name: 'subtraction',
+    arity: 2,
     execute: subtract,
   },
   '*': {
     name: 'multiplication',
+    arity: 2,
     execute: multiply,
   },
   '/': {
     name: 'division',
+    arity: 2,
     execute: divide,
+  },
+  '%': {
+    name: 'modulo',
+    arity: 2,
+    execute: modulo,
+  },
+  '^': {
+    name: 'power',
+    arity: 2,
+    execute: power,
+  },
+  sqrt: {
+    name: 'square root',
+    arity: 1,
+    execute: squareRoot,
   },
 };
 
 function printUsage() {
   console.log('Usage: node src/calculator.js <number> <operation> <number>');
   console.log('Example: node src/calculator.js 8 + 2');
-  console.log('Supported operations: +, -, *, /');
+  console.log('Square root usage: node src/calculator.js <number> sqrt');
+  console.log('Supported operations: +, -, *, /, %, ^, sqrt');
 }
 
 function parseNumber(value, label) {
@@ -70,13 +113,31 @@ function calculate(left, operation, right) {
     throw new Error(`Unsupported operation: ${operation}`);
   }
 
+  if (selectedOperation.arity === 1) {
+    return selectedOperation.execute(left);
+  }
+
   return selectedOperation.execute(left, right);
 }
 
 function main() {
   const [leftInput, operation, rightInput] = process.argv.slice(2);
+  const selectedOperation = operations[operation];
 
-  if (!leftInput || !operation || !rightInput) {
+  if (!leftInput || !operation) {
+    printUsage();
+    process.exitCode = 1;
+    return;
+  }
+
+  if (!selectedOperation) {
+    console.error(`Unsupported operation: ${operation}`);
+    printUsage();
+    process.exitCode = 1;
+    return;
+  }
+
+  if (selectedOperation.arity === 2 && !rightInput) {
     printUsage();
     process.exitCode = 1;
     return;
@@ -84,8 +145,13 @@ function main() {
 
   try {
     const left = parseNumber(leftInput, 'first');
-    const right = parseNumber(rightInput, 'second');
+    const right = selectedOperation.arity === 2 ? parseNumber(rightInput, 'second') : undefined;
     const result = calculate(left, operation, right);
+
+    if (selectedOperation.arity === 1) {
+      console.log(`${operation} ${left} = ${result}`);
+      return;
+    }
 
     console.log(`${left} ${operation} ${right} = ${result}`);
   } catch (error) {
@@ -102,6 +168,9 @@ module.exports = {
   subtract,
   multiply,
   divide,
+  modulo,
+  power,
+  squareRoot,
   calculate,
   parseNumber,
   operations,

@@ -3,6 +3,9 @@ const {
   subtract,
   multiply,
   divide,
+  modulo,
+  power,
+  squareRoot,
   calculate,
 } = require('../calculator');
 
@@ -63,6 +66,60 @@ describe('calculator operations', () => {
     });
   });
 
+  describe('modulo', () => {
+    test('returns the image example remainder for 5 % 2', () => {
+      expect(modulo(5, 2)).toBe(1);
+    });
+
+    test('returns the remainder for positive numbers', () => {
+      expect(modulo(10, 3)).toBe(1);
+    });
+
+    test('returns zero when evenly divisible', () => {
+      expect(modulo(20, 5)).toBe(0);
+    });
+
+    test('throws when dividing by zero', () => {
+      expect(() => modulo(10, 0)).toThrow('Modulo by zero is not allowed.');
+    });
+  });
+
+  describe('power', () => {
+    test('raises 2 to 3 for the image example', () => {
+      expect(power(2, 3)).toBe(8);
+    });
+
+    test('raises a base to the given exponent', () => {
+      expect(power(3, 4)).toBe(81);
+    });
+
+    test('supports a zero exponent', () => {
+      expect(power(9, 0)).toBe(1);
+    });
+
+    test('supports negative exponents', () => {
+      expect(power(2, -2)).toBe(0.25);
+    });
+  });
+
+  describe('square root', () => {
+    test('returns the image example square root for 16', () => {
+      expect(squareRoot(16)).toBe(4);
+    });
+
+    test('returns the square root for a perfect square', () => {
+      expect(squareRoot(81)).toBe(9);
+    });
+
+    test('returns the square root for zero', () => {
+      expect(squareRoot(0)).toBe(0);
+    });
+
+    test('throws for negative numbers', () => {
+      expect(() => squareRoot(-9)).toThrow('Square root of a negative number is not allowed.');
+    });
+  });
+
   describe('calculate', () => {
     test('routes to addition', () => {
       expect(calculate(2, '+', 3)).toBe(5);
@@ -80,8 +137,20 @@ describe('calculator operations', () => {
       expect(calculate(20, '/', 5)).toBe(4);
     });
 
+    test('routes to modulo', () => {
+      expect(calculate(5, '%', 2)).toBe(1);
+    });
+
+    test('routes to power', () => {
+      expect(calculate(2, '^', 3)).toBe(8);
+    });
+
+    test('routes to square root', () => {
+      expect(calculate(16, 'sqrt')).toBe(4);
+    });
+
     test('throws for an unsupported operation', () => {
-      expect(() => calculate(1, '%', 2)).toThrow('Unsupported operation: %');
+      expect(() => calculate(1, '&', 2)).toThrow('Unsupported operation: &');
     });
   });
 });
